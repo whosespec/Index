@@ -1,10 +1,23 @@
-# Workflow: Opus plans, Haiku executes
+# Omega setup: Opus orchestrates, Haiku does the work
 
-Goal: spend expensive reasoning only on planning; do the bulk of the work on the cheap model.
+```
+Goal (+ done-when)
+  -> OPUS (effort: xhigh)  plans · briefs · verifies     memory: CLAUDE.md + docs/
+       -> up to 16 parallel HAIKU workers: researcher · builder · tester · reviewer
+            -> CHECK  pass -> back to Opus   |   fail -> sent back to the worker
+```
 
-- Non-trivial tasks (more than a trivial one-file edit): use `/omega <task>` or follow the same flow manually: `planner` subagent (Opus) -> `executor` subagent (Haiku) once per plan step -> verify.
-- Trivial tasks (typo, one-line change, a question): just do them directly.
-- The executor never makes design decisions; if it is blocked, the problem goes back to the planner.
-- Always verify at the end by running the real checks, and report failures plainly.
+## Rules
+- Use `/omega <goal>` for anything non-trivial. Trivial edits/questions: just do them directly.
+- Opus never grinds through bulk work itself; it delegates to workers with self-contained briefs.
+- Every goal has explicit "done when" criteria; nothing is done until verified with real output.
+- Workers never make design decisions. Blockers go back to Opus.
+- Persist plans/decisions in `docs/` (context auto-compacts at 40%).
+- Report failures plainly; never skip or weaken tests to get green.
 
-Config: `.claude/settings.json` sets `opusplan` (Opus in plan mode, cheap model otherwise); agents live in `.claude/agents/`, the pipeline in `.claude/commands/omega.md`.
+## Layout
+- `.claude/agents/`  researcher, builder, tester, reviewer (Haiku)
+- `.claude/skills/`  explore, frontend, test-runner, code-review
+- `.claude/commands/omega.md`  the orchestration loop
+- `.claude/settings.json`  Opus, effort xhigh, compact @ 40%
+- `docs/` memory · `src/` code · `tests/` tests
